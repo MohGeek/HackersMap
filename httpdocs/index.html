@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
+    </style>
+	<title>Hackers map</title>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDi6RRn-y2RDI6MofaW5sD96xctLqprh60"></script>
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+    <script type="text/javascript">
+		var map;
+		var server;
+        
+        function getHacker(){
+            //window.setInterval(function(){
+                jQuery.get("ajax.php", function(data){
+                    hacker = JSON.parse(data);
+                    addHacker(hacker[2], hacker[3]);   
+                });   
+            //}
+            //, 12000);
+        }
+		
+		function animateCircle(hacker, line){
+			var count = 0;
+			var attack = 0;
+			var interval = window.setInterval(function(){
+				count = (count + 1) % 200;
+				var icons = line.get('icons');
+				icons[0].offset = (count / 2) + '%';
+				line.set('icons', icons);
+				if(count == 199){
+					attack++;
+					if(attack > 2){
+						line.setMap(null);
+						hacker.setMap(null);
+                        clearInterval(interval);
+                        getHacker();
+					}
+				}
+		  }, 20);
+		}
+		
+		function addHacker(lat, lng){
+			var hacker = new google.maps.Marker({
+				position: new google.maps.LatLng(lat, lng),
+				title:"Hacker",
+				icon: {
+					path: google.maps.SymbolPath.CIRCLE,
+					scale: 6,
+					strokeColor: '#C00',
+					fillColor: '#C00',
+					fillOpacity: 1.0,
+					strokeOpacity: 0.5,
+					strokeWeight: 4
+				}
+			});
+			hacker.setMap(map);
+			var lineCoordinates = [
+				new google.maps.LatLng(lat, lng),
+				server.position
+			];
+			var lineSymbol = {
+				path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+				scale: 2,
+				strokeOpacity: 0.5,
+				fillColor: '#FFC',
+				fillOpacity: 1.0,
+				strokeColor: '#FFF'
+			};
+			line = new google.maps.Polyline({
+				path: lineCoordinates,
+				icons: [{
+				  icon: lineSymbol,
+				  offset: '100%'
+				}],
+				strokeOpacity: 0.0,
+				map: map
+			});
+			animateCircle(hacker, line);
+		}
+		
+		function initialize() {
+			var mapStyles = [
+						  {
+							"elementType": "geometry",
+							"stylers": [
+							  { "hue": "#0019ff" },
+							  { "gamma": 0.08 },
+							  { "saturation": -46 },
+							  { "lightness": -10 },
+							  { "visibility": "on" }
+							]
+						  },{
+							"featureType": "water",
+							"stylers": [
+							  { "visibility": "simplified" }
+							]
+						  },{
+							"featureType": "administrative.country",
+							"elementType": "labels",
+							"stylers": [
+							  { "invert_lightness": true },
+							  { "visibility": "simplified" }
+							]
+						  },{
+							"featureType": "administrative.province",
+							"stylers": [
+							  { "visibility": "off" }
+							]
+						  },{
+						  },{
+							"featureType": "landscape",
+							"elementType": "geometry",
+							"stylers": [
+							  { "visibility": "on" },
+							  { "color": "#353367" }
+							]
+						  },{
+							"featureType": "road",
+							"stylers": [
+							  { "weight": 2.9 },
+							  { "visibility": "off" }
+							]
+						  },{
+							"featureType": "administrative.locality",
+							"stylers": [
+							  { "visibility": "simplified" },
+							  { "invert_lightness": true }
+							]
+						  },{
+							"featureType": "poi",
+							"stylers": [
+							  { "visibility": "off" }
+							]
+						  }
+						]
+			var mapOptions = {
+			  center: { lat: 32.3532678, lng: -13.5375068},
+			  zoom: 3,
+			  styles: mapStyles
+			};
+			map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);	
+			server = new google.maps.Marker({  
+				position: new google.maps.LatLng(38.900898, -77.0379087),
+				map: map,
+				icon: {
+				  path: google.maps.SymbolPath.CIRCLE,
+				  scale: 8,
+				  strokeColor: '#0C0',
+				  fillColor: '#0C0',
+				  fillOpacity: 1.0,
+				  strokeOpacity: 0.5,
+				  strokeWeight: 4
+				},
+				title: 'Datacenter'
+			});
+		}
+		google.maps.event.addDomListener(window, 'load', initialize);
+		setTimeout(function(){  
+			getHacker();
+		}, 2000);
+        setTimeout(function(){  
+            getHacker();
+        }, 1000);
+        setTimeout(function(){  
+            getHacker();
+        }, 1000);
+        setTimeout(function(){  
+            getHacker();
+        }, 1000);
+        setTimeout(function(){  
+            getHacker();
+        }, 1000);
+        setTimeout(function(){  
+            getHacker();
+        }, 1000);
+    </script>
+  </head>
+  <body>
+	<div id="map-canvas"></div>
+  </body>
+</html>
